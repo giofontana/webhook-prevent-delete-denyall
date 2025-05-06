@@ -3,7 +3,7 @@ kind: Template
 metadata:
   creationTimestamp: null
   name: project-with-denyall-networkpolicy
-  namespace: openshift
+  namespace: openshift-config
 objects:
 - apiVersion: project.openshift.io/v1
   kind: Project

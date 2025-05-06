@@ -140,3 +140,25 @@ spec:
   projectRequestTemplate:
     name: project-with-denyall-networkpolicy
 ```
+
+# Testing Project Template
+
+```bash
+$ oc new-project test
+Now using project "test" on server "https://api.luckyluke.lab.gfontana.me:6443".
+
+You can add applications to this project with the 'new-app' command. For example, try:
+
+    oc new-app rails-postgresql-example
+
+to build a new example application in Ruby. Or use kubectl to deploy a simple Kubernetes application:
+
+    kubectl create deployment hello-node --image=registry.k8s.io/e2e-test-images/agnhost:2.43 -- /agnhost serve-hostname
+
+$ oc get networkpolicy
+NAME      POD-SELECTOR   AGE
+denyall   <none>         15s
+
+$ oc delete networkpolicy denyall
+Error from server: admission webhook "validate-denyall-netpol.example.com" denied the request: Deleting the NetworkPolicy named 'denyall' is not allowed by policy.
+```
