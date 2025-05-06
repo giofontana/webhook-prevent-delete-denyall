@@ -74,8 +74,9 @@ openssl x509 -req -in tls.csr -CA ca.crt -CAkey ca.key -CAcreateserial \
 Update webhook with CA:
 
 ```
+cd ..
 # Base64 encode the CA certificate
-CA_BUNDLE_BASE64=$(cat ca.crt | base64 | tr -d '\n')
+CA_BUNDLE_BASE64=$(cat certs/ca.crt | base64 | tr -d '\n')
 sed -i "s/<BASE64_ENCODED_CA_CERTIFICATE>/${CA_BUNDLE_BASE64}/g" manifests/webhook.yaml
 ```
 
@@ -84,13 +85,15 @@ sed -i "s/<BASE64_ENCODED_CA_CERTIFICATE>/${CA_BUNDLE_BASE64}/g" manifests/webho
 ```bash
 oc create namespace denyall-webhook
 oc -n denyall-webhook create secret tls denyall-netpol-webhook-tls \
-  --cert=tls.crt \
-  --key=tls.key \
-cd ../manifests
-oc apply -f *.yaml
+  --cert=certs/tls.crt \
+  --key=certs/tls.key
+cd manifests
+oc apply -f .
 ```
 
 # Testing
+
+```bash
 oc create namespace np-test
 
 cat <<EOF | oc apply -f -
@@ -104,5 +107,14 @@ spec:
   policyTypes:
     - Ingress
     - Egress
+EOF
 
 oc delete networkpolicy denyall -n np-test
+```
+
+You should get the following error message:
+
+```
+$ oc delete networkpolicy denyall -n np-test
+Error from server: admission webhook "validate-denyall-netpol.example.com" denied the request: Deleting the NetworkPolicy named 'denyall' is not allowed by policy.
+```
