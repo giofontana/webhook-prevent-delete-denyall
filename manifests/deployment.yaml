@@ -20,7 +20,7 @@ spec:
       containers:
       - name: webhook-server
         # --- IMPORTANT: Replace with your actual image name ---
-        image: quay.io/gfontana/webhook-prevent-delete-denyall:latest
+        image: <container-registry>/webhook-prevent-delete-denyall:latest
         imagePullPolicy: Always # Or IfNotPresent if using a specific tag
         ports:
         - containerPort: 8443

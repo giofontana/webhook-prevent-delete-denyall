@@ -15,10 +15,14 @@ go mod tidy
 Create the container image:
 
 ```bash
-IMG_REGISTRY_USER=gfontana
+IMG_REGISTRY_USER=<user>
 podman login quay.io
 podman build -t quay.io/$IMG_REGISTRY_USER/webhook-prevent-delete-denyall .
 podman push quay.io/$IMG_REGISTRY_USER/webhook-prevent-delete-denyall
+
+CONTAINER_IMAGE_REGISTRY=quay.io/$IMG_REGISTRY_USER
+
+sed -i "s/<container-registry>/${CA_BUNDLE_BASE64}/g" manifests/deployment.yaml
 ```
 
 # Create certs
