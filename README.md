@@ -1,6 +1,6 @@
-# webhook-prevent-delete-denyall
+# Webhook to Prevent Deletion of Deny All Network Policy
 
-Kubernetes webhook that prevents user from deleting NP named denyall
+Kubernetes webhook that prevents user from deleting NP named `denyall`.
 
 # Build
 
