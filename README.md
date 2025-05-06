@@ -119,7 +119,7 @@ $ oc delete networkpolicy denyall -n np-test
 Error from server: admission webhook "validate-denyall-netpol.example.com" denied the request: Deleting the NetworkPolicy named 'denyall' is not allowed by policy.
 ```
 
-# Add denyall NP at OpenShift Project Template
+# Add denyall NP to OpenShift Project Template
 
 Additionally, you can add a denyall NP to OpenShif Template. That way you will garantee that every new project will have a denyall NP.
 
