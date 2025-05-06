@@ -121,7 +121,7 @@ Error from server: admission webhook "validate-denyall-netpol.example.com" denie
 
 # Add denyall NP to OpenShift Project Template
 
-Additionally, you can add a denyall NP to OpenShif Template. That way you will garantee that every new project will have a denyall NP.
+Additionally, you can add a denyall NP to OpenShift Template. That way you will garantee that every new project will have a denyall NP.
 
 ```bash
 oc create -f template/template.yaml
