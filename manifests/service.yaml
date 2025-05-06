@@ -1,0 +1,13 @@
+# service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: denyall-netpol-webhook-svc
+  namespace: denyall-webhook
+spec:
+  selector:
+    app: denyall-netpol-webhook
+  ports:
+  - port: 443 # Service port exposed to the API server
+    targetPort: webhook-api # Port name defined in the Deployment (maps to 8443)
+    protocol: TCP

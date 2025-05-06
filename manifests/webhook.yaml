@@ -1,0 +1,36 @@
+
+# validatingwebhookconfiguration.yaml
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: denyall-netpol-validation-webhook
+  # No namespace, as this is a cluster-scoped resource
+webhooks:
+- name: validate-denyall-netpol.example.com # Use a unique, fully qualified name
+  clientConfig:
+    # --- IMPORTANT: caBundle needs to be the base64 encoded CA certificate ---
+    # --- that signed the webhook server's certificate ---
+    # --- Example command: cat ca.crt | base64 | tr -d '\n' ---
+    caBundle: <BASE64_ENCODED_CA_CERTIFICATE>
+    service:
+      name: denyall-netpol-webhook-svc
+      namespace: denyall-webhook # UPDATED: Namespace of the Service
+      path: "/validate" # Path defined in the Go server's HandleFunc
+      port: 443 # Port defined in the Service
+  rules:
+  - operations: ["DELETE"] # Only intercept DELETE operations
+    apiGroups: ["networking.k8s.io"]
+    apiVersions: ["v1"]
+    resources: ["networkpolicies"] # Only for NetworkPolicy resources
+    scope: "Namespaced" # NetworkPolicies are namespaced resources
+  # FailurePolicy defines what happens if the webhook is unreachable or times out.
+  # Fail: Deny the request if the webhook call fails. This is crucial for security policies.
+  # Ignore: Allow the request if the webhook call fails. Use with caution.
+  failurePolicy: Fail
+  # SideEffects indicate if the webhook has side effects on other resources (e.g., creating other objects).
+  # None: The webhook only observes the request and makes an allow/deny decision.
+  sideEffects: None
+  # AdmissionReviewVersions specifies the versions of AdmissionReview the webhook understands.
+  admissionReviewVersions: ["v1"]
+  # Timeout for the webhook call. Keep it reasonably short.
+  timeoutSeconds: 5

@@ -1,0 +1,37 @@
+---
+# deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: denyall-netpol-webhook-deployment
+  namespace: denyall-webhook
+  labels:
+    app: denyall-netpol-webhook
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: denyall-netpol-webhook
+  template:
+    metadata:
+      labels:
+        app: denyall-netpol-webhook
+    spec:
+      containers:
+      - name: webhook-server
+        # --- IMPORTANT: Replace with your actual image name ---
+        image: quay.io/gfontana/webhook-prevent-delete-denyall:latest
+        imagePullPolicy: Always # Or IfNotPresent if using a specific tag
+        ports:
+        - containerPort: 8443
+          name: webhook-api
+        volumeMounts:
+        - name: webhook-certs
+          mountPath: /etc/webhook/certs
+          readOnly: true
+      volumes:
+      - name: webhook-certs
+        secret:
+          # This secret must contain tls.crt and tls.key for the webhook server
+          # and must exist in the 'denyall-webhook' namespace.
+          secretName: denyall-netpol-webhook-tls

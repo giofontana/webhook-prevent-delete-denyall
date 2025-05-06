@@ -1,0 +1,57 @@
+# --- Build Stage ---
+# Use the official Golang image as a builder environment.
+# Specify the Go version and use Alpine Linux for a smaller image size during build.
+FROM golang:1.24-alpine AS builder
+
+# Set the Current Working Directory inside the container
+WORKDIR /app
+
+# Copy the Go module files first.
+# This leverages Docker layer caching. If go.mod and go.sum haven't changed,
+# the dependency download step won't be re-run.
+COPY go.mod go.sum ./
+
+# Download Go module dependencies
+RUN go mod download
+
+# Copy the source code into the container
+COPY . .
+
+# Build the Go application
+# - CGO_ENABLED=0: Disable CGO to build a statically linked binary (no external C dependencies).
+# - GOOS=linux: Ensure the binary is built for Linux (as it will run in a Linux container).
+# - -ldflags="-s -w": Strip debugging symbols (-s) and DWARF symbol table (-w)
+#   to significantly reduce the final binary size.
+# - -o webhook-server: Specify the output binary name.
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o webhook-server .
+
+# --- Final Stage ---
+# Use Red Hat Universal Base Image 9 Minimal as the final base image.
+FROM registry.access.redhat.com/ubi9/ubi-minimal:latest
+
+# Install the ca-certificates package using microdnf (the package manager for ubi-minimal).
+# This is necessary if your application needs to make HTTPS requests or verify TLS certificates.
+# Clean up the cache afterwards to keep the image small.
+RUN microdnf install -y ca-certificates && microdnf clean all
+
+# Set the Current Working Directory inside the container
+WORKDIR /app
+
+# Copy only the compiled binary from the builder stage to the final image.
+COPY --from=builder /app/webhook-server .
+
+# Expose the port that the webhook server listens on (as defined in main.go).
+EXPOSE 8443
+
+# Define the command to run when the container starts.
+# This executes the compiled binary.
+ENTRYPOINT ["/app/webhook-server"]
+
+# Optional: Improve security by running as a non-root user.
+# UBI images run as root by default. You might need to adjust permissions
+# if switching to a non-root user.
+# 1. Create a dedicated group and user (using UBI commands like groupadd/useradd if needed).
+# 2. Switch to that user using the USER instruction.
+# Note: Ensure file permissions allow the non-root user to execute the binary
+# and potentially read certificates if not mounted with appropriate permissions.
+USER 1001
