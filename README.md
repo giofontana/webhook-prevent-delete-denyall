@@ -22,7 +22,7 @@ podman push quay.io/$IMG_REGISTRY_USER/webhook-prevent-delete-denyall
 
 cd ..
 CONTAINER_IMAGE_REGISTRY=quay.io/$IMG_REGISTRY_USER
-sed -i "s/<container-registry>/${CONTAINER_IMAGE_REGISTRY}/g" manifests/deployment.yaml
+sed -i "s#<container-registry>#${CONTAINER_IMAGE_REGISTRY}#g" manifests/deployment.yaml
 ```
 
 # Create certs
